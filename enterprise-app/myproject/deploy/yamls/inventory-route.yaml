@@ -1,0 +1,19 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  creationTimestamp: null
+  labels:
+    move2kube.konveyor.io/service: inventory
+  name: inventory
+spec:
+  host: router-enterprise-app.apps-crc.testing
+  path: /products
+  port:
+    targetPort: port-8080
+  to:
+    kind: Service
+    name: inventory
+    weight: 1
+status:
+  ingress:
+    - {}

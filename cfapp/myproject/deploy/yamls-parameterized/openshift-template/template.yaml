@@ -1,0 +1,139 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: myproject-template
+  generatename: ""
+  namespace: ""
+  selflink: ""
+  uid: ""
+  resourceversion: ""
+  generation: 0
+  creationtimestamp: "0001-01-01T00:00:00Z"
+  deletiontimestamp: null
+  deletiongraceperiodseconds: null
+  labels: {}
+  annotations: {}
+  ownerreferences: []
+  finalizers: []
+  zzz_deprecatedclustername: ""
+  managedfields: []
+objects:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: cfnodejsapp
+      name: cfnodejsapp
+    spec:
+      ports:
+        - name: port-8080
+          port: 8080
+          targetPort: 8080
+      selector:
+        move2kube.konveyor.io/service: cfnodejsapp
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    data:
+      VCAP_APPLICATION: eyJhcHBsaWNhdGlvbl9pZCI6ImlkIiwiYXBwbGljYXRpb25fbmFtZSI6ImNmbm9kZWpzYXBwIiwiYXBwbGljYXRpb25fdXJpcyI6WyJhcHAtdXJsIl0sImFwcGxpY2F0aW9uX3ZlcnNpb24iOiJhcHAtdmVyc2lvbiIsImNmX2FwaSI6Imh0dHBzOi8vYXBpLnJlZ2lvbi5jZi5jb20iLCJsaW1pdHMiOnsiZGlzayI6MTAyNCwiZmRzIjoxNjM4NCwibWVtIjoyNTZ9LCJuYW1lIjoiY2Zub2RlanNhcHAiLCJvcmdhbml6YXRpb25faWQiOiJvcmctaWQiLCJvcmdhbml6YXRpb25fbmFtZSI6Im9yZy1uYW1lIiwicHJvY2Vzc19pZCI6ImlkIiwicHJvY2Vzc190eXBlIjoid2ViIiwic3BhY2VfaWQiOiJzcGFjZS1pZCIsInNwYWNlX25hbWUiOiJkZXYiLCJ1cmlzIjpbImFwcC11cmwiXSwidXNlcnMiOm51bGwsInZlcnNpb24iOiJhcHAtdmVyc2lvbiJ9
+      VCAP_SERVICES: e30=
+    kind: Secret
+    metadata:
+      creationTimestamp: null
+      name: cfnodejsapp-vcapasenv
+    type: Opaque
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: cfnodejsapp
+      name: cfnodejsapp
+    spec:
+      replicas: ${{COMMON_REPLICAS}}
+      selector:
+        matchLabels:
+          move2kube.konveyor.io/service: cfnodejsapp
+      strategy: {}
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            move2kube.konveyor.io/service: cfnodejsapp
+          name: cfnodejsapp
+        spec:
+          containers:
+            - env:
+                - name: BLUEMIX_REGION
+                  value: region
+                - name: VCAP_SERVICES
+                  valueFrom:
+                    secretKeyRef:
+                      key: VCAP_SERVICES
+                      name: cfnodejsapp-vcapasenv
+                - name: VCAP_APPLICATION
+                  valueFrom:
+                    secretKeyRef:
+                      key: VCAP_APPLICATION
+                      name: cfnodejsapp-vcapasenv
+                - name: TEST_ENV
+                  value: test-env-value
+              image: default-route-openshift-image-registry.apps-crc.testing/default/cfnodejsapp:latest
+              imagePullPolicy: Always
+              name: cfnodejsapp
+              ports:
+                - containerPort: 8080
+              resources:
+                requests:
+                  memory: 256M
+          restartPolicy: Always
+          securityContext: {}
+    status: {}
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: cfnodejsapp-latest
+      name: cfnodejsapp-latest
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+        - annotations: null
+          from:
+            kind: DockerImage
+            name: cfnodejsapp
+          generation: null
+          importPolicy: {}
+          name: latest
+          referencePolicy:
+            type: ""
+    status:
+      dockerImageRepository: ""
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: cfnodejsapp
+      name: cfnodejsapp
+    spec:
+      host: router-default.apps-crc.testing
+      path: /cfnodejsapp
+      port:
+        targetPort: port-8080
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: cfnodejsapp
+        weight: 1
+    status:
+      ingress:
+        - {}
+parameters:
+  - name: COMMON_REPLICAS
+    value: "2"

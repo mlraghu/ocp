@@ -1,0 +1,21 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  creationTimestamp: null
+  labels:
+    move2kube.konveyor.io/service: cfnodejsapp
+  name: cfnodejsapp
+spec:
+  host: router-default.apps-crc.testing
+  path: 
+  port:
+    targetPort: port-8080
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: cfnodejsapp
+    weight: 1
+status:
+  ingress:
+    - {}

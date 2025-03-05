@@ -1,0 +1,13 @@
+version: "3.5"
+services:
+  cfnodejsapp:
+    container_name: cfnodejsapp
+    environment:
+      BLUEMIX_REGION: test-env-value
+      TEST_ENV: test-env-value
+      VCAP_APPLICATION: test-env-value
+      VCAP_SERVICES: test-env-value
+    image: 167641168138.dkr.ecr.us-east-1.amazonaws.com/ocp/cfnodejsapp:latest
+    ports:
+      - target: 8080
+        published: 8080

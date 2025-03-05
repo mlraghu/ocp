@@ -1,0 +1,72 @@
+move2kube:
+  minreplicas: "2"
+  services:
+    cfnodejsapp:
+      "8080":
+        servicetype: Ingress
+        urlpath: /cfnodejsapp
+      containerizationoption:
+        - Nodejs-Dockerfile
+      deployment: Deployment
+      enable: true
+      port: "8080"
+  target:
+    cicd:
+      tekton:
+        gitrepobasicauthsecret: ""
+        gitreposshsecret: ""
+        registrypushsecret: ""
+    default:
+      clustertype: Openshift
+      ingress:
+        host: router-default.apps-crc.testing
+    imageregistry:
+      default-route-openshift-image-registry.apps-crc.testing:
+        logintype: no authentication
+      namespace: default
+      url: default-route-openshift-image-registry.apps-crc.testing
+  transformers:
+    kubernetes:
+      argocd:
+        namespace: ""
+    types:
+      - ArgoCD
+      - Buildconfig
+      - CloudFoundry
+      - ClusterSelector
+      - ComposeAnalyser
+      - ComposeGenerator
+      - ContainerImagesPushScriptGenerator
+      - DockerfileDetector
+      - DockerfileImageBuildScript
+      - DockerfileParser
+      - DotNetCore-Dockerfile
+      - EarAnalyser
+      - EarRouter
+      - Golang-Dockerfile
+      - Gradle
+      - Jar
+      - Jboss
+      - Knative
+      - Kubernetes
+      - KubernetesVersionChanger
+      - Liberty
+      - Maven
+      - Nodejs-Dockerfile
+      - OperatorTransformer
+      - PHP-Dockerfile
+      - Parameterizer
+      - Python-Dockerfile
+      - ReadMeGenerator
+      - Ruby-Dockerfile
+      - Rust-Dockerfile
+      - Tekton
+      - Tomcat
+      - WarAnalyser
+      - WarRouter
+      - WinWebApp-Dockerfile
+      - ZuulAnalyser
+  transformerselector: ""
+route:
+  tls:
+    terminationpolicy: edge

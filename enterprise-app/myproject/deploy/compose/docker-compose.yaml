@@ -1,0 +1,35 @@
+version: "3.5"
+services:
+  customers:
+    container_name: customers
+    image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/customers:latest
+    ports:
+      - target: 8080
+        published: 8083
+  frontend:
+    container_name: frontend
+    image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/frontend:latest
+    ports:
+      - target: 8080
+        published: 8084
+  gateway:
+    container_name: gateway
+    environment:
+      JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: dev
+      SPRING_PROFILES_ACTIVE: dev
+    image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/gateway:latest
+    ports:
+      - target: 8080
+        published: 8081
+  inventory:
+    container_name: inventory
+    image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/inventory:latest
+    ports:
+      - target: 8080
+        published: 8080
+  orders:
+    container_name: orders
+    image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/orders:latest
+    ports:
+      - target: 8080
+        published: 8082

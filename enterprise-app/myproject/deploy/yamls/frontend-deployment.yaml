@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    move2kube.konveyor.io/service: frontend
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      move2kube.konveyor.io/service: frontend
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: frontend
+      name: frontend
+    spec:
+      containers:
+        - image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/frontend:latest
+          imagePullPolicy: Always
+          name: frontend
+          ports:
+            - containerPort: 8080
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: ENTERPRISE_APP_GATEWAY_URL
+              value: 'http://10.217.4.187:8080'
+          resources:
+            requests:
+              ephemeral-storage: "0"
+              memory: "0"
+      restartPolicy: Always
+      securityContext: {}
+status: {}

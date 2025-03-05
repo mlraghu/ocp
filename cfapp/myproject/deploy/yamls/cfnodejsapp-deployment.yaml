@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    move2kube.konveyor.io/service: cfnodejsapp
+  name: cfnodejsapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      move2kube.konveyor.io/service: cfnodejsapp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: cfnodejsapp
+      name: cfnodejsapp
+    spec:
+      containers:
+        - env:
+            - name: BLUEMIX_REGION
+              value: region
+            - name: VCAP_SERVICES
+              valueFrom:
+                secretKeyRef:
+                  key: VCAP_SERVICES
+                  name: cfnodejsapp-vcapasenv
+            - name: VCAP_APPLICATION
+              valueFrom:
+                secretKeyRef:
+                  key: VCAP_APPLICATION
+                  name: cfnodejsapp-vcapasenv
+            - name: TEST_ENV
+              value: test-env-value
+          image: default-route-openshift-image-registry.apps-crc.testing/default/cfnodejsapp:latest
+          imagePullPolicy: Always
+          name: cfnodejsapp
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: 256M
+      restartPolicy: Always
+      securityContext: {}
+status: {}

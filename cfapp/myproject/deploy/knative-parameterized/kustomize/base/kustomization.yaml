@@ -1,0 +1,2 @@
+resources:
+  - cfnodejsapp-service.yaml

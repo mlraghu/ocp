@@ -1,0 +1,139 @@
+move2kube:
+  minreplicas: "2"
+  services:
+    customers:
+      "8080":
+        servicetype: Ingress
+        urlpath: /customers
+      childModules:
+        customers:
+          port: "8080"
+          springBootProfiles:
+            - dev-inmemorydb
+      containerizationoption:
+        - Maven
+      deployment: Deployment
+      dockerfileType: build stage in base image
+      enable: true
+      mavenProfiles:
+        - dev-inmemorydb
+      wartransformer: Tomcat
+    frontend:
+      "8080":
+        servicetype: Ingress
+        urlpath: /frontend
+      containerizationoption:
+        - Nodejs-Dockerfile
+      deployment: Deployment
+      enable: true
+      port: "8080"
+    gateway:
+      "8080":
+        servicetype: Ingress
+        urlpath: /gateway
+      childModules:
+        gateway:
+          port: "8080"
+          springBootProfiles:
+            - dev
+      containerizationoption:
+        - Maven
+      deployment: Deployment
+      dockerfileType: build stage in base image
+      enable: true
+      mavenProfiles:
+        - dev
+    inventory:
+      "8080":
+        servicetype: Ingress
+        urlpath: /inventory
+      childModules:
+        inventory:
+          port: "8080"
+          springBootProfiles:
+            - dev-inmemorydb
+      containerizationoption:
+        - Maven
+      deployment: Deployment
+      dockerfileType: build stage in base image
+      enable: true
+      mavenProfiles:
+        - dev-inmemorydb
+    orders:
+      "8080":
+        servicetype: Ingress
+        urlpath: /orders
+      childModules:
+        orders:
+          port: "8080"
+          springBootProfiles:
+            - dev-inmemorydb
+      containerizationoption:
+        - Maven
+      deployment: Deployment
+      dockerfileType: build stage in base image
+      enable: true
+      mavenProfiles:
+        - dev-inmemorydb
+  target:
+    cicd:
+      tekton:
+        gitrepobasicauthsecret: ""
+        gitreposshsecret: ""
+        registrypushsecret: ""
+    default:
+      clustertype: Openshift
+      ingress:
+        host: router-enterprise-app.apps-crc.testing
+    imageregistry:
+      default-route-openshift-image-registry.apps-crc.testing:
+        logintype: no authentication
+      namespace: enterprise-app
+      url: default-route-openshift-image-registry.apps-crc.testing
+  transformers:
+    kubernetes:
+      argocd:
+        namespace: ""
+    types:
+      - ArgoCD
+      - Buildconfig
+      - CloudFoundry
+      - ClusterSelector
+      - ComposeAnalyser
+      - ComposeGenerator
+      - ContainerImagesPushScriptGenerator
+      - DockerfileDetector
+      - DockerfileImageBuildScript
+      - DockerfileParser
+      - DotNetCore-Dockerfile
+      - EarAnalyser
+      - EarRouter
+      - Golang-Dockerfile
+      - Gradle
+      - Jar
+      - Jboss
+      - Knative
+      - Kubernetes
+      - KubernetesVersionChanger
+      - Liberty
+      - Maven
+      - Nodejs-Dockerfile
+      - OperatorTransformer
+      - PHP-Dockerfile
+      - Parameterizer
+      - Python-Dockerfile
+      - ReadMeGenerator
+      - Ruby-Dockerfile
+      - Rust-Dockerfile
+      - Tekton
+      - Tomcat
+      - WarAnalyser
+      - WarRouter
+      - WinWebApp-Dockerfile
+      - ZuulAnalyser
+  transformerselector: ""
+route:
+  tls:
+    certificate: ""
+    key: ""
+    terminationpolicy: edge

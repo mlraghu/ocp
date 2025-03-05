@@ -1,0 +1,25 @@
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+    creationTimestamp: null
+    labels:
+        move2kube.konveyor.io/service: customers
+    name: customers
+spec:
+    host: router-enterprise-app.apps-crc.testing
+    path: /customers
+    port:
+        targetPort: port-8080
+    tls:
+        termination: edge
+    to:
+        kind: Service
+        name: customers
+        weight: 1
+status:
+    ingress:
+        - {}
+
+...

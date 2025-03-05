@@ -1,0 +1,523 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: myproject-template
+  generatename: ""
+  namespace: ""
+  selflink: ""
+  uid: ""
+  resourceversion: ""
+  generation: 0
+  creationtimestamp: "0001-01-01T00:00:00Z"
+  deletiontimestamp: null
+  deletiongraceperiodseconds: null
+  labels: {}
+  annotations: {}
+  ownerreferences: []
+  finalizers: []
+  zzz_deprecatedclustername: ""
+  managedfields: []
+objects:
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: frontend
+      name: frontend
+    spec:
+      host: router-enterprise-app.apps-crc.testing
+      path: /frontend
+      port:
+        targetPort: port-8080
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: frontend
+        weight: 1
+    status:
+      ingress:
+        - {}
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      creationTimestamp: null
+      name: frontend-vcapasenv
+    type: Opaque
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: gateway
+      name: gateway
+    spec:
+      host: router-enterprise-app.apps-crc.testing
+      path: /gateway
+      port:
+        targetPort: port-8080
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: gateway
+        weight: 1
+    status:
+      ingress:
+        - {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: inventory
+      name: inventory
+    spec:
+      replicas: ${{COMMON_REPLICAS}}
+      selector:
+        matchLabels:
+          move2kube.konveyor.io/service: inventory
+      strategy: {}
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            move2kube.konveyor.io/service: inventory
+          name: inventory
+        spec:
+          containers:
+            - image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/inventory:latest
+              imagePullPolicy: Always
+              name: inventory
+              ports:
+                - containerPort: 8080
+              resources:
+                requests:
+                  ephemeral-storage: "0"
+                  memory: "0"
+          restartPolicy: Always
+          securityContext: {}
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: orders
+      name: orders
+    spec:
+      replicas: ${{COMMON_REPLICAS}}
+      selector:
+        matchLabels:
+          move2kube.konveyor.io/service: orders
+      strategy: {}
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            move2kube.konveyor.io/service: orders
+          name: orders
+        spec:
+          containers:
+            - image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/orders:latest
+              imagePullPolicy: Always
+              name: orders
+              ports:
+                - containerPort: 8080
+              resources:
+                requests:
+                  ephemeral-storage: "0"
+                  memory: "0"
+          restartPolicy: Always
+          securityContext: {}
+    status: {}
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: customers-latest
+      name: customers-latest
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+        - annotations: null
+          from:
+            kind: DockerImage
+            name: customers
+          generation: null
+          importPolicy: {}
+          name: latest
+          referencePolicy:
+            type: ""
+    status:
+      dockerImageRepository: ""
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: frontend
+      name: frontend
+    spec:
+      replicas: ${{COMMON_REPLICAS}}
+      selector:
+        matchLabels:
+          move2kube.konveyor.io/service: frontend
+      strategy: {}
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            move2kube.konveyor.io/service: frontend
+          name: frontend
+        spec:
+          containers:
+            - image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/frontend:latest
+              imagePullPolicy: Always
+              name: frontend
+              ports:
+                - containerPort: 8080
+              resources:
+                requests:
+                  ephemeral-storage: "0"
+                  memory: "0"
+          restartPolicy: Always
+          securityContext: {}
+    status: {}
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: frontend-latest
+      name: frontend-latest
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+        - annotations: null
+          from:
+            kind: DockerImage
+            name: frontend
+          generation: null
+          importPolicy: {}
+          name: latest
+          referencePolicy:
+            type: ""
+    status:
+      dockerImageRepository: ""
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      creationTimestamp: null
+      name: orders-vcapasenv
+    type: Opaque
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: inventory
+      name: inventory
+    spec:
+      ports:
+        - name: port-8080
+          port: 8080
+          targetPort: 8080
+      selector:
+        move2kube.konveyor.io/service: inventory
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: orders
+      name: orders
+    spec:
+      ports:
+        - name: port-8080
+          port: 8080
+          targetPort: 8080
+      selector:
+        move2kube.konveyor.io/service: orders
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: gateway
+      name: gateway
+    spec:
+      ports:
+        - name: port-8080
+          port: 8080
+          targetPort: 8080
+      selector:
+        move2kube.konveyor.io/service: gateway
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: inventory-latest
+      name: inventory-latest
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+        - annotations: null
+          from:
+            kind: DockerImage
+            name: inventory
+          generation: null
+          importPolicy: {}
+          name: latest
+          referencePolicy:
+            type: ""
+    status:
+      dockerImageRepository: ""
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: inventory
+      name: inventory
+    spec:
+      host: router-enterprise-app.apps-crc.testing
+      path: /inventory
+      port:
+        targetPort: port-8080
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: inventory
+        weight: 1
+    status:
+      ingress:
+        - {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: frontend
+      name: frontend
+    spec:
+      ports:
+        - name: port-8080
+          port: 8080
+          targetPort: 8080
+      selector:
+        move2kube.konveyor.io/service: frontend
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: gateway-latest
+      name: gateway-latest
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+        - annotations: null
+          from:
+            kind: DockerImage
+            name: gateway
+          generation: null
+          importPolicy: {}
+          name: latest
+          referencePolicy:
+            type: ""
+    status:
+      dockerImageRepository: ""
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      creationTimestamp: null
+      name: inventory-vcapasenv
+    type: Opaque
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: customers
+      name: customers
+    spec:
+      replicas: ${{COMMON_REPLICAS}}
+      selector:
+        matchLabels:
+          move2kube.konveyor.io/service: customers
+      strategy: {}
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            move2kube.konveyor.io/service: customers
+          name: customers
+        spec:
+          containers:
+            - image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/customers:latest
+              imagePullPolicy: Always
+              name: customers
+              ports:
+                - containerPort: 8080
+              resources:
+                requests:
+                  ephemeral-storage: "0"
+                  memory: "0"
+          restartPolicy: Always
+          securityContext: {}
+    status: {}
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: customers
+      name: customers
+    spec:
+      host: router-enterprise-app.apps-crc.testing
+      path: /customers
+      port:
+        targetPort: port-8080
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: customers
+        weight: 1
+    status:
+      ingress:
+        - {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: customers
+      name: customers
+    spec:
+      ports:
+        - name: port-8080
+          port: 8080
+          targetPort: 8080
+      selector:
+        move2kube.konveyor.io/service: customers
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: orders-latest
+      name: orders-latest
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+        - annotations: null
+          from:
+            kind: DockerImage
+            name: orders
+          generation: null
+          importPolicy: {}
+          name: latest
+          referencePolicy:
+            type: ""
+    status:
+      dockerImageRepository: ""
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: orders
+      name: orders
+    spec:
+      host: router-enterprise-app.apps-crc.testing
+      path: /orders
+      port:
+        targetPort: port-8080
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: orders
+        weight: 1
+    status:
+      ingress:
+        - {}
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      creationTimestamp: null
+      name: customers-vcapasenv
+    type: Opaque
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: gateway
+      name: gateway
+    spec:
+      replicas: ${{COMMON_REPLICAS}}
+      selector:
+        matchLabels:
+          move2kube.konveyor.io/service: gateway
+      strategy: {}
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            move2kube.konveyor.io/service: gateway
+          name: gateway
+        spec:
+          containers:
+            - env:
+                - name: JBP_CONFIG_SPRING_AUTO_RECONFIGURATION
+                  value: '{ enabled: false }'
+                - name: SPRING_PROFILES_ACTIVE
+                  value: dev
+              image: default-route-openshift-image-registry.apps-crc.testing/enterprise-app/gateway:latest
+              imagePullPolicy: Always
+              name: gateway
+              ports:
+                - containerPort: 8080
+              resources:
+                requests:
+                  ephemeral-storage: "0"
+                  memory: "0"
+          restartPolicy: Always
+          securityContext: {}
+    status: {}
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      creationTimestamp: null
+      name: gateway-vcapasenv
+    type: Opaque
+parameters:
+  - name: COMMON_REPLICAS
+    value: "2"

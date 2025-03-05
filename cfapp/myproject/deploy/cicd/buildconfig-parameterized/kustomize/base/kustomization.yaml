@@ -1,0 +1,4 @@
+resources:
+  - myproject-clone-build-push-cfnodejsapp-buildconfig.yaml
+  - myproject-git-repo-generic-secret.yaml
+  - myproject-web-hook-cfnodejsapp-secret.yaml

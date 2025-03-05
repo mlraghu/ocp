@@ -1,0 +1,279 @@
+apiVersion: move2kube.konveyor.io/v1alpha1
+kind: QACache
+spec:
+  solutions:
+    - id: move2kube.transformerselector
+      type: Input
+      description: Specify a Kubernetes style selector to select only the transformers that you want to run.
+      hints:
+        - Leave empty to select everything. This is the default.
+      default: ""
+      answer: ""
+    - id: move2kube.transformers.types
+      type: MultiSelect
+      description: 'Select all transformer types that you are interested in:'
+      hints:
+        - Services that don't support any of the transformer types you are interested in will be ignored.
+      options:
+        - ArgoCD
+        - Buildconfig
+        - CloudFoundry
+        - ClusterSelector
+        - ComposeAnalyser
+        - ComposeGenerator
+        - ContainerImagesPushScriptGenerator
+        - DockerfileDetector
+        - DockerfileImageBuildScript
+        - DockerfileParser
+        - DotNetCore-Dockerfile
+        - EarAnalyser
+        - EarRouter
+        - Golang-Dockerfile
+        - Gradle
+        - Jar
+        - Jboss
+        - Knative
+        - Kubernetes
+        - KubernetesVersionChanger
+        - Liberty
+        - Maven
+        - Nodejs-Dockerfile
+        - OperatorTransformer
+        - PHP-Dockerfile
+        - Parameterizer
+        - Python-Dockerfile
+        - ReadMeGenerator
+        - Ruby-Dockerfile
+        - Rust-Dockerfile
+        - Tekton
+        - Tomcat
+        - WarAnalyser
+        - WarRouter
+        - WinWebApp-Dockerfile
+        - ZuulAnalyser
+      default:
+        - Knative
+        - Tomcat
+        - DockerfileImageBuildScript
+        - ComposeGenerator
+        - Tekton
+        - KubernetesVersionChanger
+        - DotNetCore-Dockerfile
+        - WarAnalyser
+        - ArgoCD
+        - ReadMeGenerator
+        - Kubernetes
+        - ContainerImagesPushScriptGenerator
+        - Ruby-Dockerfile
+        - Nodejs-Dockerfile
+        - Liberty
+        - ClusterSelector
+        - EarAnalyser
+        - ComposeAnalyser
+        - WarRouter
+        - CloudFoundry
+        - Buildconfig
+        - OperatorTransformer
+        - Rust-Dockerfile
+        - Jar
+        - WinWebApp-Dockerfile
+        - Jboss
+        - DockerfileDetector
+        - DockerfileParser
+        - Parameterizer
+        - Python-Dockerfile
+        - Gradle
+        - EarRouter
+        - ZuulAnalyser
+        - Maven
+        - PHP-Dockerfile
+        - Golang-Dockerfile
+      answer:
+        - ArgoCD
+        - Buildconfig
+        - CloudFoundry
+        - ClusterSelector
+        - ComposeAnalyser
+        - ComposeGenerator
+        - ContainerImagesPushScriptGenerator
+        - DockerfileDetector
+        - DockerfileImageBuildScript
+        - DockerfileParser
+        - DotNetCore-Dockerfile
+        - EarAnalyser
+        - EarRouter
+        - Golang-Dockerfile
+        - Gradle
+        - Jar
+        - Jboss
+        - Knative
+        - Kubernetes
+        - KubernetesVersionChanger
+        - Liberty
+        - Maven
+        - Nodejs-Dockerfile
+        - OperatorTransformer
+        - PHP-Dockerfile
+        - Parameterizer
+        - Python-Dockerfile
+        - ReadMeGenerator
+        - Ruby-Dockerfile
+        - Rust-Dockerfile
+        - Tekton
+        - Tomcat
+        - WarAnalyser
+        - WarRouter
+        - WinWebApp-Dockerfile
+        - ZuulAnalyser
+    - id: move2kube.services.[].enable
+      type: MultiSelect
+      description: 'Select all services that are needed:'
+      hints:
+        - The services unselected here will be ignored.
+      options:
+        - cfnodejsapp
+      default:
+        - cfnodejsapp
+      answer:
+        - cfnodejsapp
+    - id: move2kube.services."cfnodejsapp".containerizationoption
+      type: MultiSelect
+      description: 'Select the transformer to use for containerizing the ''cfnodejsapp'' service :'
+      options:
+        - Nodejs-Dockerfile
+      default:
+        - Nodejs-Dockerfile
+      answer:
+        - Nodejs-Dockerfile
+    - id: move2kube.services."cfnodejsapp".port
+      type: Select
+      description: 'Select the port to be exposed for the ''"cfnodejsapp"'' service :'
+      hints:
+        - Select 'Other' if you want to expose the service using a different port.
+      options:
+        - "8080"
+        - Other (specify custom option)
+      default: "8080"
+      answer: "8080"
+    - id: move2kube.target.imageregistry.url
+      type: Select
+      description: 'Enter the URL of the image registry where the new images should be pushed : '
+      hints:
+        - You can always change it later by changing the yamls.
+      options:
+        - Other (specify custom option)
+        - 167641168138.dkr.ecr.us-east-1.amazonaws.com
+        - quay.io
+      default: quay.io
+      answer: 167641168138.dkr.ecr.us-east-1.amazonaws.com
+    - id: move2kube.target.imageregistry.namespace
+      type: Input
+      description: 'Enter the namespace where the new images should be pushed : '
+      hints:
+        - 'Ex : myproject'
+      default: myproject
+      answer: ocp
+    - id: move2kube.target."default".clustertype
+      type: Select
+      description: 'Choose the cluster type:'
+      hints:
+        - Choose the cluster type you would like to target
+      options:
+        - Openshift
+        - AWS-EKS
+        - Azure-AKS
+        - GCP-GKE
+        - IBM-IKS
+        - IBM-Openshift
+        - Kubernetes
+      default: Kubernetes
+      answer: Openshift
+    - id: move2kube.services.cfnodejsapp.deployment
+      type: Select
+      description: For the service cfnodejsapp, which type of deployment is required?
+      options:
+        - Deployment
+        - StatefulSet
+        - ArgoRollout
+      default: Deployment
+      answer: Deployment
+    - id: move2kube.services."cfnodejsapp"."8080".servicetype
+      type: Select
+      description: What kind of service/ingress should be created for the service cfnodejsapp's 8080 port?
+      hints:
+        - Choose Ingress if you want a ingress/route resource to be created
+      options:
+        - Ingress
+        - LoadBalancer
+        - NodePort
+        - ClusterIP
+        - Don't create service
+      default: Ingress
+      answer: Ingress
+    - id: move2kube.services."cfnodejsapp"."8080".urlpath
+      type: Input
+      description: Specify the ingress path to expose the service cfnodejsapp's 8080 port on?
+      hints:
+        - Leave out leading / to use first part as subdomain
+      default: /cfnodejsapp
+      answer: /cfnodejsapp
+    - id: move2kube.minreplicas
+      type: Input
+      description: Provide the minimum number of replicas each service should have
+      hints:
+        - If the value is 0 pods won't be started by default
+      default: "2"
+      answer: "2"
+    - id: move2kube.target.imageregistry."167641168138.dkr.ecr.us-east-1.amazonaws.com".logintype
+      type: Select
+      description: '[167641168138.dkr.ecr.us-east-1.amazonaws.com] What type of container registry login do you want to use?'
+      options:
+        - use an existing pull secret
+        - no authentication
+        - username and password
+      default: no authentication
+      answer: no authentication
+    - id: move2kube.transformers.kubernetes.argocd.namespace
+      type: Input
+      description: Enter the destination namespace for the Argo CD pipeline
+      hints:
+        - If Argo CD pipeline is not relevant to you, then leave empty to use the default value for it.
+      default: ""
+      answer: ""
+    - id: route.tls.terminationpolicy
+      type: Select
+      description: 'Select a TLS termination policy for the route. (default: passthrough)'
+      options:
+        - edge
+        - passthrough
+        - reencrypt
+      default: passthrough
+      answer: passthrough
+    - id: move2kube.target."default".ingress.host
+      type: Input
+      description: Provide the ingress host domain
+      hints:
+        - Ingress host domain is part of service URL
+      default: myproject.com
+      answer: cfapp.apps-crc.testing
+    - id: move2kube.target.cicd.tekton.gitreposshsecret
+      type: Input
+      description: Enter the name of an existing K8s secret that has ssh credentials for cloning the git repo
+      hints:
+        - If this is not relevant to you then give an empty string to remove it from the YAML.
+      default: ""
+      answer: ""
+    - id: move2kube.target.cicd.tekton.gitrepobasicauthsecret
+      type: Input
+      description: Enter the name of an existing K8s secret that has username and password for cloning the git repo
+      hints:
+        - If this is not relevant to you then give an empty string to remove it from the YAML.
+      default: ""
+      answer: ""
+    - id: move2kube.target.cicd.tekton.registrypushsecret
+      type: Input
+      description: Enter the name of an existing K8s secret that has Docker config.json for pushing images to the registry
+      hints:
+        - If this is not relevant to you then give an empty string to remove it from the YAML.
+      default: ""
+      answer: ""

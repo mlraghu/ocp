@@ -1,0 +1,12 @@
+resources:
+  - myproject-clone-build-push-customers-buildconfig.yaml
+  - myproject-clone-build-push-orders-buildconfig.yaml
+  - myproject-web-hook-customers-secret.yaml
+  - myproject-web-hook-inventory-secret.yaml
+  - myproject-web-hook-orders-secret.yaml
+  - myproject-clone-build-push-frontend-buildconfig.yaml
+  - myproject-clone-build-push-gateway-buildconfig.yaml
+  - myproject-clone-build-push-inventory-buildconfig.yaml
+  - myproject-git-repo-generic-secret.yaml
+  - myproject-web-hook-frontend-secret.yaml
+  - myproject-web-hook-gateway-secret.yaml

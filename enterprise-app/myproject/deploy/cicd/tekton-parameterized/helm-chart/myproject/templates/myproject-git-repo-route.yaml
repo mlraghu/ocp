@@ -1,0 +1,25 @@
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+    creationTimestamp: null
+    labels:
+        move2kube.konveyor.io/service: myproject-git-repo
+    name: myproject-git-repo
+spec:
+    host: router-enterprise-app.apps-crc.testing
+    path: /el-myproject-git-repo
+    port:
+        targetPort: port-8080
+    tls:
+        termination: edge
+    to:
+        kind: Service
+        name: myproject-git-repo
+        weight: 1
+status:
+    ingress:
+        - {}
+
+...

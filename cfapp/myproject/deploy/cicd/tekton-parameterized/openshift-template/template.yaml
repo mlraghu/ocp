@@ -1,0 +1,221 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: myproject-template
+  generatename: ""
+  namespace: ""
+  selflink: ""
+  uid: ""
+  resourceversion: ""
+  generation: 0
+  creationtimestamp: "0001-01-01T00:00:00Z"
+  deletiontimestamp: null
+  deletiongraceperiodseconds: null
+  labels: {}
+  annotations: {}
+  ownerreferences: []
+  finalizers: []
+  zzz_deprecatedclustername: ""
+  managedfields: []
+objects:
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      creationTimestamp: null
+      name: myproject-tekton-triggers-admin
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: myproject-tekton-triggers-admin
+    subjects:
+      - kind: ServiceAccount
+        name: myproject-tekton-triggers-admin
+  - apiVersion: triggers.tekton.dev/v1beta1
+    kind: TriggerBinding
+    metadata:
+      creationTimestamp: null
+      name: myproject-git-event
+    spec: {}
+    status: {}
+  - apiVersion: triggers.tekton.dev/v1beta1
+    kind: EventListener
+    metadata:
+      creationTimestamp: null
+      name: myproject-git-repo
+    spec:
+      namespaceSelector: {}
+      resources: {}
+      serviceAccountName: myproject-tekton-triggers-admin
+      triggers:
+        - bindings:
+            - ref: myproject-git-event
+          template:
+            ref: myproject-run-clone-build-push
+    status:
+      configuration:
+        generatedName: ""
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      creationTimestamp: null
+      labels:
+        move2kube.konveyor.io/service: myproject-git-repo
+      name: myproject-git-repo
+    spec:
+      host: cfapp.apps-crc.testing
+      path: /el-myproject-git-repo
+      port:
+        targetPort: port-8080
+      tls:
+        termination: passthrough
+      to:
+        kind: Service
+        name: myproject-git-repo
+        weight: 1
+    status:
+      ingress:
+        - {}
+  - apiVersion: triggers.tekton.dev/v1beta1
+    kind: TriggerTemplate
+    metadata:
+      creationTimestamp: null
+      name: myproject-run-clone-build-push
+    spec:
+      resourcetemplates:
+        - apiVersion: tekton.dev/v1beta1
+          kind: PipelineRun
+          metadata:
+            creationTimestamp: null
+            name: myproject-clone-build-push-$(uid)
+          spec:
+            params:
+              - name: image-registry-url
+                value: 167641168138.dkr.ecr.us-east-1.amazonaws.com/ocp
+            pipelineRef:
+              name: myproject-clone-build-push
+            serviceAccountName: myproject-clone-push
+            workspaces:
+              - name: myproject-shared-data
+                volumeClaimTemplate:
+                  metadata:
+                    creationTimestamp: null
+                  spec:
+                    accessModes:
+                      - ReadWriteOnce
+                    resources:
+                      requests:
+                        storage: 1Gi
+                    storageClassName: default
+                  status: {}
+          status: {}
+    status: {}
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      creationTimestamp: null
+      name: myproject-tekton-triggers-admin
+    rules:
+      - apiGroups:
+          - triggers.tekton.dev
+        resources:
+          - eventlisteners
+          - triggerbindings
+          - triggertemplates
+        verbs:
+          - get
+      - apiGroups:
+          - tekton.dev
+        resources:
+          - pipelineruns
+        verbs:
+          - create
+      - apiGroups:
+          - ""
+        resources:
+          - configmaps
+        verbs:
+          - get
+          - list
+          - watch
+  - apiVersion: v1
+    data:
+      VCAP_APPLICATION: eyJhcHBsaWNhdGlvbl9pZCI6ImlkIiwiYXBwbGljYXRpb25fbmFtZSI6ImNmbm9kZWpzYXBwIiwiYXBwbGljYXRpb25fdXJpcyI6WyJhcHAtdXJsIl0sImFwcGxpY2F0aW9uX3ZlcnNpb24iOiJhcHAtdmVyc2lvbiIsImNmX2FwaSI6Imh0dHBzOi8vYXBpLnJlZ2lvbi5jZi5jb20iLCJsaW1pdHMiOnsiZGlzayI6MTAyNCwiZmRzIjoxNjM4NCwibWVtIjoyNTZ9LCJuYW1lIjoiY2Zub2RlanNhcHAiLCJvcmdhbml6YXRpb25faWQiOiJvcmctaWQiLCJvcmdhbml6YXRpb25fbmFtZSI6Im9yZy1uYW1lIiwicHJvY2Vzc19pZCI6ImlkIiwicHJvY2Vzc190eXBlIjoid2ViIiwic3BhY2VfaWQiOiJzcGFjZS1pZCIsInNwYWNlX25hbWUiOiJkZXYiLCJ1cmlzIjpbImFwcC11cmwiXSwidXNlcnMiOm51bGwsInZlcnNpb24iOiJhcHAtdmVyc2lvbiJ9
+      VCAP_SERVICES: e30=
+    kind: Secret
+    metadata:
+      creationTimestamp: null
+      name: cfnodejsapp-vcapasenv
+    type: Opaque
+  - apiVersion: tekton.dev/v1beta1
+    kind: Pipeline
+    metadata:
+      creationTimestamp: null
+      name: myproject-clone-build-push
+    spec:
+      params:
+        - description: registry-domain/namespace where the output image should be pushed.
+          name: image-registry-url
+          type: string
+      tasks:
+        - name: clone-1
+          params:
+            - name: url
+              value: '<TODO: insert git repo url>'
+            - name: revision
+              value: main
+            - name: deleteExisting
+              value: "true"
+          taskRef:
+            name: git-clone
+          workspaces:
+            - name: output
+              workspace: myproject-shared-data
+            - name: ssh-directory
+              workspace: git-ssh-credentials
+        - name: build-push-1
+          params:
+            - name: IMAGE
+              value: $(params.image-registry-url)/cfnodejsapp
+            - name: DOCKERFILE
+              value: '<TODO: fill this prefix starting from the root of the git repo>/cfnodejsapp/Dockerfile'
+            - name: CONTEXT
+              value: '<TODO: fill this prefix starting from the root of the git repo>/cfnodejsapp'
+          runAfter:
+            - clone-1
+          taskRef:
+            name: kaniko
+          workspaces:
+            - name: source
+              workspace: myproject-shared-data
+            - name: dockerconfig
+              workspace: registry-credentials
+      workspaces:
+        - description: This workspace will receive the cloned git repo and be passed to the kaniko task for building the image.
+          name: myproject-shared-data
+        - description: This workspace provides the credentials (Docker config.json) for pushing images to the registry. See https://hub.tekton.dev/tekton/task/kaniko
+          name: registry-credentials
+        - description: This workspace provides the credentials (ssh private key) for cloning the git repo. See https://hub.tekton.dev/tekton/task/git-clone
+          name: git-ssh-credentials
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      creationTimestamp: null
+      name: myproject-clone-push
+    secrets:
+      - name: myproject-image-registry
+  - apiVersion: v1
+    data:
+      .dockerconfigjson: PFRPRE86IGluc2VydCB5b3VyIGRvY2tlciBjb25maWcganNvbj4=
+    kind: Secret
+    metadata:
+      annotations:
+        tekton.dev/docker-0: ""
+      creationTimestamp: null
+      name: myproject-image-registry
+    type: kubernetes.io/dockerconfigjson
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      creationTimestamp: null
+      name: myproject-tekton-triggers-admin
+parameters: []

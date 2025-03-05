@@ -1,0 +1,26 @@
+resources:
+  - gateway-service.yaml
+  - inventory-latest-imagestream.yaml
+  - inventory-route.yaml
+  - inventory-service.yaml
+  - orders-service.yaml
+  - customers-deployment.yaml
+  - customers-route.yaml
+  - customers-service.yaml
+  - frontend-service.yaml
+  - gateway-latest-imagestream.yaml
+  - inventory-vcapasenv-secret.yaml
+  - customers-vcapasenv-secret.yaml
+  - gateway-deployment.yaml
+  - gateway-vcapasenv-secret.yaml
+  - orders-latest-imagestream.yaml
+  - orders-route.yaml
+  - orders-deployment.yaml
+  - customers-latest-imagestream.yaml
+  - frontend-deployment.yaml
+  - frontend-latest-imagestream.yaml
+  - frontend-route.yaml
+  - frontend-vcapasenv-secret.yaml
+  - gateway-route.yaml
+  - inventory-deployment.yaml
+  - orders-vcapasenv-secret.yaml

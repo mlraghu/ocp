@@ -1,0 +1,16 @@
+resources:
+  - customers-vcapasenv-secret.yaml
+  - myproject-git-repo-eventlistener.yaml
+  - myproject-git-repo-route.yaml
+  - myproject-tekton-triggers-admin-role.yaml
+  - myproject-image-registry-secret.yaml
+  - frontend-vcapasenv-secret.yaml
+  - myproject-tekton-triggers-admin-serviceaccount.yaml
+  - orders-vcapasenv-secret.yaml
+  - myproject-tekton-triggers-admin-rolebinding.yaml
+  - gateway-vcapasenv-secret.yaml
+  - inventory-vcapasenv-secret.yaml
+  - myproject-clone-build-push-pipeline.yaml
+  - myproject-clone-push-serviceaccount.yaml
+  - myproject-git-event-triggerbinding.yaml
+  - myproject-run-clone-build-push-triggertemplate.yaml
