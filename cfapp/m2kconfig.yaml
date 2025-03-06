@@ -23,7 +23,7 @@ move2kube:
     imageregistry:
       default-route-openshift-image-registry.apps-crc.testing:
         logintype: no authentication
-      namespace: default
+      namespace: myproject
       url: default-route-openshift-image-registry.apps-crc.testing
   transformers:
     kubernetes:
@@ -69,4 +69,4 @@ move2kube:
   transformerselector: ""
 route:
   tls:
-    terminationpolicy: edge
+    terminationpolicy: passthrough
